@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarGuard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #087e8b;
+            --dark: #0d3151;
+            --success: #16a36a;
+            --danger: #dc343b;
+            --warning: #d99513;
+            --border: #d6e0eb;
+            --text: #172437;
+            --muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #eef3f8;
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        /* Header */
+        header {
+            padding: 26px 30px;
+            border-radius: 16px;
+            background: linear-gradient(120deg, var(--dark), var(--primary));
+            color: white;
+            margin-bottom: 22px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: clamp(25px, 4vw, 36px);
+        }
+
+        header p {
+            margin: 0;
+            color: #d8f5ff;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        button {
+            min-height: 44px;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        button.alt {
+            background: #e0e8f0;
+            color: var(--text);
+        }
+
+        /* Statistics */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat {
+            min-height: 112px;
+            padding: 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            box-shadow: 0 3px 10px #17243708;
+        }
+
+        .stat small {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .stat strong {
+            display: block;
+            margin-top: 12px;
+            font-size: 28px;
+        }
+
+        /* Panel section */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 0 16px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* Panel cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: 5px solid var(--success);
+            border-radius: 13px;
+            box-shadow: 0 3px 10px #17243708;
+        }
+
+        .card.fault {
+            border-top-color: var(--danger);
+            background: #fffafa;
+        }
+
+        .card.warning {
+            border-top-color: var(--warning);
+            background: #fffdf7;
+        }
+
+        .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .plate {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .plate h3 {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .mini {
+            flex-shrink: 0;
+            width: 43px;
+            height: 38px;
+            border: 2px solid #7790aa;
+            border-radius: 4px;
+            background:
+                repeating-linear-gradient(90deg, transparent 0 9px, #9db8d5 9px 10px),
+                repeating-linear-gradient(0deg, #173b61 0 8px, #6689ad 8px 9px);
+        }
+
+        .fault .mini {
+            border-color: var(--danger);
+            background: repeating-linear-gradient(135deg, #501d27 0 7px, #b84b50 7px 9px);
+        }
+
+        .tag {
+            flex-shrink: 0;
+            padding: 6px 9px;
+            border-radius: 20px;
+            background: #d9f8e8;
+            color: #087344;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .fault .tag {
+            background: #ffe0e0;
+            color: #b4232a;
+        }
+
+        .warning .tag {
+            background: #fff0c7;
+            color: #875600;
+        }
+
+        /* Input alignment */
+        .inputs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .inputs label {
+            display: block;
+            min-width: 0;
+            color: #56677d;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .inputs input {
+            display: block;
+            width: 100%;
+            height: 42px;
+            margin-top: 8px;
+            padding: 8px 10px;
+            border: 1px solid #cbd6e2;
+            border-radius: 7px;
+            background: white;
+            color: var(--text);
+            font: inherit;
+            font-size: 14px;
+        }
+
+        .inputs input:focus {
+            outline: 2px solid #087e8b55;
+            border-color: var(--primary);
+        }
+
+        /* Panel readings */
+        .readings {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 17px;
+            font-size: 13px;
+        }
+
+        .readings span {
+            color: #56677d;
+        }
+
+        .readings b {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .bar {
+            height: 8px;
+            margin-top: 12px;
+            overflow: hidden;
+            background: #e8edf3;
+            border-radius: 10px;
+        }
+
+        .bar span {
+            display: block;
+            height: 100%;
+            background: var(--success);
+            transition: width 0.25s;
+        }
+
+        .fault .bar span {
+            background: var(--danger);
+        }
+
+        .warning .bar span {
+            background: var(--warning);
+        }
+
+        /* Explanation */
+        .explain {
+            margin-top: 26px;
+            padding: 22px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .explain h2 {
+            margin: 0 0 10px;
+            font-size: 19px;
+        }
+
+        .alert {
+            margin-top: 16px;
+            padding: 16px 20px;
+            border: 1px solid #edd18a;
+            border-radius: 10px;
+            background: #fff5d9;
+            color: #6e5111;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .foot {
+            margin: 20px 2px 4px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            header {
+                padding: 22px 18px;
+            }
+
+            .toolbar {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 13px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat {
+                padding: 15px;
+                min-height: 100px;
+            }
+
+            .stat strong {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+
+            .explain {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <header>
+            <h1>☀️ SolarGuard</h1>
+            <p>Solar panel monitoring and reading-based fault detection</p>
+            <p>12 panels · Voltage and current analysis</p>
+        </header>
+
+        <div class="toolbar">
+            <button id="inject">⚠ Simulate Fault in Panel</button>
+            <button id="example" class="alt">📊 Load Sample Readings</button>
+            <button id="reset" class="alt">↻ Reset All Panels</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <small>Panels Checked</small>
+                <strong>12</strong>
+            </div>
+
+            <div class="stat">
+                <small>Healthy Panels</small>
+                <strong id="healthy">12</strong>
+            </div>
+
+            <div class="stat">
+                <small>Fault / Warning Panels</small>
+                <strong id="faults">0</strong>
+            </div>
+
+            <div class="stat">
+                <small>Total Estimated Power</small>
+                <strong id="power">648 W</strong>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <h2>Solar Panel Monitoring</h2>
+            <span>Live dashboard simulation</span>
+        </div>
+
+        <div id="cards" class="grid"></div>
+
+        <!-- <div class="explain">
+            <!-- <h2>Detection Rules</h2> -->
+            <!-- <p>
+                The demo checks the voltage and current readings of each panel.
+                A panel is marked <b>FAULT</b> if voltage is below 12 V or current
+                is below 1.8 A. A panel is marked <b>WARNING</b> if voltage is
+                below 15 V or current is below 2.4 A, provided it does not meet
+                the fault condition.
+            </p> -->
+            <!-- <p>
+                The reference values are 18 V and 3 A. Change these thresholds
+                to match your actual solar panel specifications and operating
+                conditions.
+            </p> -->
+        </div>
+
+        <!-- <div class="alert">
+            <b>Important:</b> This is a software simulation, not a physical
+            damage detector. Low readings can result from shading, wiring
+            problems, temperature, load conditions, or sensor errors.
+            Actual panel damage must be confirmed through further inspection.
+        </div> -->
+
+        <div class="foot">
+            SolarGuard @copyright 2026 | All rights reserved. | Vaibhav Gutthe.
+        </div>
+
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        let data = Array.from(
+            { length: 12 },
+            () => ({ v: 18, i: 3 })
+        );
+
+        function classify(x) {
+            if (x.v < 12 || x.i < 1.8) return "FAULT";
+            if (x.v < 15 || x.i < 2.4) return "WARNING";
+            return "HEALTHY";
+        }
+
+        function render() {
+            let healthy = 0;
+            let problems = 0;
+            let totalPower = 0;
+            let out = "";
+
+            data.forEach((x, idx) => {
+                const status = classify(x);
+                const power = x.v * x.i;
+
+                totalPower += power;
+
+                if (status === "HEALTHY") healthy++;
+                else problems++;
+
+                const cls =
+                    status === "FAULT" ? "fault" :
+                        status === "WARNING" ? "warning" : "";
+
+                const index = Math.max(
+                    0,
+                    Math.min(100, Math.min(x.v / 18 * 100, x.i / 3 * 100))
+                );
+
+                out += `
+        <article class="card ${cls}">
+            <div class="head">
+                <div class="plate">
+                    <div class="mini"></div>
+                    <h3>Solar Panel P${String(idx + 1).padStart(2, "0")}</h3>
+                </div>
+                <span class="tag">${status}</span>
+            </div>
+
+            <div class="inputs">
+                <label>
+                    Voltage (V)
+                    <input type="number" min="0" max="100"
+                        step="0.1" value="${x.v}"
+                        data-index="${idx}" data-key="v">
+                </label>
+
+                <label>
+                    Current (A)
+                    <input type="number" min="0" max="100"
+                        step="0.1" value="${x.i}"
+                        data-index="${idx}" data-key="i">
+                </label>
+            </div>
+
+            <div class="readings">
+                <span>Estimated Power</span>
+                <b>${power.toFixed(1)} W</b>
+            </div>
+
+            <div class="readings">
+                <span>Voltage / Current Index</span>
+                <b>${index.toFixed(0)}%</b>
+            </div>
+
+            <div class="bar">
+                <span style="width:${index}%"></span>
+            </div>
+        </article>`;
+            });
+
+            $("cards").innerHTML = out;
+            $("healthy").textContent = healthy;
+            $("faults").textContent = problems;
+            $("power").textContent = totalPower.toFixed(1) + " W";
+
+            document.querySelectorAll("input[data-index]").forEach(input => {
+                input.addEventListener("input", event => {
+                    const idx = Number(event.target.dataset.index);
+                    const key = event.target.dataset.key;
+                    const value = parseFloat(event.target.value);
+
+                    data[idx][key] = Number.isFinite(value)
+                        ? Math.max(0, value)
+                        : 0;
+
+                    render();
+                });
+            });
+        }
+
+        $("inject").addEventListener("click", () => {
+            data[5] = { v: 10, i: 1.2 };
+            render();
+        });
+
+        $("reset").addEventListener("click", () => {
+            data = Array.from(
+                { length: 12 },
+                () => ({ v: 18, i: 3 })
+            );
+            render();
+        });
+
+        $("example").addEventListener("click", () => {
+            data = Array.from(
+                { length: 12 },
+                () => ({ v: 18, i: 3 })
+            );
+
+            data[2] = { v: 14.5, i: 2.1 };
+            data[5] = { v: 10, i: 1.2 };
+            data[9] = { v: 16, i: 2.5 };
+
+            render();
+        });
+
+        render();
+    </script>
+</body>
+
+</html>
